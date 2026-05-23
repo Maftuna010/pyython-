@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduSphere | Zamonaviy Ta'lim Platformasi</title>
+  <style>
+    :root {
+      --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --text-muted: #64748b;
+      --primary: #2563eb; --primary-hover: #1d4ed8; --danger: #ef4444; --success: #22c55e;
+      --border: #e2e8f0; --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      --radius: 0.75rem; --font: system-ui, -apple-system, sans-serif;
+    }
+    [data-theme="dark"] {
+      --bg: #0b1120; --card: #111827; --text: #e2e8f0; --text-muted: #94a3b8;
+      --border: #1e293b; --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.5; transition: background 0.3s, color 0.3s; }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; font: inherit; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
+    
+    /* Nav */
+    nav { background: var(--card); border-bottom: 1px solid var(--border); padding: 1rem 0; position: sticky; top: 0; z-index: 50; }
+    .nav-inner { display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); }
+    .nav-links { display: flex; gap: 1rem; align-items: center; }
+    .btn { padding: 0.5rem 1rem; border-radius: var(--radius); border: none; font-weight: 600; transition: 0.2s; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); }
+    .btn-danger { background: var(--danger); color: white; }
+    .hidden { display: none !important; }
+    .badge { background: var(--primary); color: white; padding: 0.2rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; }
+
+    /* Pages */
+    .page { padding: 2rem 0; min-height: calc(100vh - 80px); }
+    .hero { text-align: center; padding: 4rem 1rem; background: linear-gradient(135deg, var(--primary), #4f46e5); color: white; border-radius: var(--radius); margin-bottom: 2rem; }
+    .grid { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow); transition: transform 0.2s; }
+    .card:hover { transform: translateY(-4px); }
+    .course-img { width: 100%; height: 140px; background: #cbd5e1; border-radius: calc(var(--radius) - 4px); margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
+    .progress-bar { height: 8px; background: var(--border); border-radius: 9999px; overflow: hidden; margin-top: 0.5rem; }
+    .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.5s; }
+
+    /* Forms */
+    .form-box { max-width: 400px; margin: 2rem auto; background: var(--card); padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow); }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.4rem; font-weight: 500; }
+    .form-group input, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); color: var(--text); }
+    .form-group input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(37,99,235,0.2); }
+    .error { color: var(--danger); font-size: 0.85rem; margin-top: 0.3rem; min-height: 1.2rem; }
+    
+    /* Dashboard */
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { text-align: center; padding: 1rem; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); }
+    .stat-val { font-size: 2rem; font-weight: 800; color: var(--primary); }
+    
+    /* Toast */
+    .toast { position: fixed; bottom: 1rem; right: 1rem; background: var(--card); border: 1px solid var(--border); padding: 1rem; border-radius: var(--radius); box-shadow: var(--shadow); transform: translateY(100px); transition: 0.3s; z-index: 100; }
+    .toast.show { transform: translateY(0); }
+
+    @media (max-width: 640px) {
+      .nav-links span { display: none; }
+      .hero { padding: 2rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="container nav-inner">
+      <a href="#" class="logo" onclick="app.route('home')">EduSphere</a>
+      <div class="nav-links">
+        <button class="btn btn-outline" onclick="app.toggleTheme()">🌙/☀️</button>
+        <span id="nav-auth" class="hidden">
+          <span id="nav-user" class="badge">O'quvchi</span>
+          <button class="btn btn-outline" onclick="app.route('dashboard')">Dashboard</button>
+          <button class="btn btn-danger" onclick="app.logout()">Chiqish</button>
+        </span>
+        <span id="nav-guest">
+          <button class="btn btn-outline" onclick="app.route('login')">Kirish</button>
+          <button class="btn btn-primary" onclick="app.route('register')">Ro'yxatdan o'tish</button>
+        </span>
+      </div>
+    </div>
+  </nav>
+
+  <main id="app" class="container page"></main>
+  <div id="toast" class="toast"></div>
+
+  <script>
+    // 🔹 LocalStorage DB simulyatsiyasi
+    const DB = {
+      get: k => JSON.parse(localStorage.getItem(k) || '[]'),
+      set: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
+      findUser: email => DB.get('users').find(u => u.email === email),
+      addUser: u => { const arr = DB.get('users'); arr.push(u); DB.set('users', arr); },
+      enroll: (uid, cid) => { const arr = DB.get('enrollments'); if(!arr.find(e => e.uid === uid && e.cid === cid)) { arr.push({uid, cid, progress: 0}); DB.set('enrollments', arr); } },
+      updateProgress: (uid, cid, val) => { const arr = DB.get('enrollments'); const idx = arr.findIndex(e => e.uid === uid && e.cid === cid); if(idx !== -1) { arr[idx].progress = val; DB.set('enrollments', arr); } }
+    };
+
+    // 🔹 Xavfsiz parol (simulyatsiya, productionda bcrypt/sha256 ishlatiladi)
+    const hashPass = p => btoa(p).split('').reverse().join('');
+
+    // 🔹 Asosiy App
+    const app = {
+      user: JSON.parse(localStorage.getItem('session') || 'null'),
+      courses: [
+        {id: 'c1', title: 'Web Dasturlash Asoslari', desc: 'HTML, CSS va JavaScript orqali sayt yaratishni o\'rganing.', img: '💻', lessons: 12},
+        {id: 'c2', title: 'Ma\'lumotlar Bazasi (SQL)', desc: 'PostgreSQL va relatsion jadvallar bilan ishlash.', img: '🗄️', lessons: 8},
+        {id: 'c3', title: 'Python Dasturlash', desc: 'Backend, skriptlar va avtomatlashtirish.', img: '🐍', lessons: 15},
+        {id: 'c4', title: 'UI/UX Dizayn', desc: 'Figma, prototiplash va foydalanuvchi tajribasi.', img: '🎨', lessons: 10}
+      ],
+      
+      init() {
+        this.updateNav();
+        window.addEventListener('hashchange', () => this.route(window.location.hash.slice(1) || 'home'));
+        this.route(window.location.hash.slice(1) || 'home');
+        if(localStorage.getItem('theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+      },
+
+      route(page) {
+        const appEl = document.getElementById('app');
+        const hash = page || 'home';
+        window.location.hash = hash;
+        
+        if(!this.user && (hash === 'dashboard')) { this.route('login'); return; }
+        
+        switch(hash) {
+          case 'home': appEl.innerHTML = this.views.home(); break;
+          case 'login': appEl.innerHTML = this.views.login(); this.bindLogin(); break;
+          case 'register': appEl.innerHTML = this.views.register(); this.bindRegister(); break;
+          case 'courses': appEl.innerHTML = this.views.courses(); break;
+          case 'dashboard': appEl.innerHTML = this.views.dashboard(); break;
+          default: appEl.innerHTML = this.views.home();
+        }
+      },
+
+      updateNav() {
+        const auth = document.getElementById('nav-auth');
+        const guest = document.getElementById('nav-guest');
+        if(this.user) { auth.classList.remove('hidden'); guest.classList.add('hidden'); document.getElementById('nav-user').textContent = this.user.name; }
+        else { auth.classList.add('hidden'); guest.classList.remove('hidden'); }
+      },
+
+      showToast(msg, type='info') {
+        const t = document.getElementById('toast');
+        t.textContent = msg; t.style.borderColor = type === 'error' ? 'var(--danger)' : type === 'success' ? 'var(--success)' : 'var(--border)';
+        t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000);
+      },
+
+      toggleTheme() {
+        const html = document.documentElement;
+        const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+      },
+
+      logout() {
+        localStorage.removeItem('session');
+        this.user = null;
+        this.updateNav();
+        this.route('home');
+        this.showToast('Tizimdan chiqildi', 'info');
+      },
+
+      bindRegister() {
+        document.getElementById('reg-form').addEventListener('submit', e => {
+          e.preventDefault();
+          const name = document.getElementById('reg-name').value.trim();
+          const email = document.getElementById('reg-email').value.trim();
+          const pass = document.getElementById('reg-pass').value;
+          const err = document.getElementById('reg-error');
+          
+          if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = 'Email noto\'g\'ri formatda'; return; }
+          if(pass.length < 6) { err.textContent = 'Parol kamida 6 belgi bo\'lishi kerak'; return; }
+          if(DB.findUser(email)) { err.textContent = 'Bu email allaqachon ro\'yxatdan o\'tgan'; return; }
+          
+          const newUser = { id: Date.now().toString(), name, email, pass: hashPass(pass), role: 'student', createdAt: new Date().toISOString() };
+          DB.addUser(newUser);
+          this.showToast('Muvaffaqiyatli ro\'yxatdan o\'tdingiz!', 'success');
+          this.route('login');
+        });
+      },
+
+      bindLogin() {
+        document.getElementById('log-form').addEventListener('submit', e => {
+          e.preventDefault();
+          const email = document.getElementById('log-email').value.trim();
+          const pass = document.getElementById('log-pass').value;
+          const err = document.getElementById('log-error');
+          
+          const user = DB.findUser(email);
+          if(!user || user.pass !== hashPass(pass)) { err.textContent = 'Email yoki parol noto\'g\'ri'; return; }
+          
+          this.user = { id: user.id, name: user.name, email: user.email, role: user.role };
+          localStorage.setItem('session', JSON.stringify(this.user));
+          this.updateNav();
+          this.route('dashboard');
+          this.showToast('Xush kelibsiz, ' + user.name + '!', 'success');
+        });
+      },
+
+      enrollCourse(cid) {
+        if(!this.user) { this.route('login'); return; }
+        DB.enroll(this.user.id, cid);
+        this.showToast('Kursga yozildingiz!', 'success');
+        this.route('dashboard');
+      },
+
+      views: {
+        home() { return `
+          <div class="hero">
+            <h1 style="font-size:2.5rem;margin-bottom:1rem;">Kelajagingizni bugun boshlang</h1>
+            <p style="font-size:1.2rem;opacity:0.9;margin-bottom:2rem;">Zamonaviy ko'nikmalar, tajribali mentorlar va shaxsiy o'quv yo'nalishi.</p>
+            <button class="btn" style="background:white;color:var(--primary);font-size:1.1rem;padding:0.8rem 2rem;" onclick="app.route('register')">Bepul boshlash →</button>
+          </div>
+          <h2 style="margin-bottom:1rem;">Mashhur Kurslar</h2>
+          <div class="grid">${app.courses.map(c => `
+            <div class="card">
+              <div class="course-img" style="font-size:3rem;">${c.img}</div>
+              <h3>${c.title}</h3>
+              <p style="color:var(--text-muted);margin:0.5rem 0;">${c.desc}</p>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1rem;">
+                <span class="badge">${c.lessons} dars</span>
+                <button class="btn btn-primary" onclick="app.route('courses')">Ko'rish</button>
+              </div>
+            </div>`).join('')}
+          </div>`;
+        },
+        register() { return `
+          <div class="form-box">
+            <h2 style="margin-bottom:1rem;">Ro'yxatdan o'tish</h2>
+            <form id="reg-form">
+              <div class="form-group"><label>Ism</label><input id="reg-name" required></div>
+              <div class="form-group"><label>Email</label><input id="reg-email" type="email" required></div>
+              <div class="form-group"><label>Parol</label><input id="reg-pass" type="password" required></div>
+              <div id="reg-error" class="error"></div>
+              <button type="submit" class="btn btn-primary" style="width:100%;margin-top:0.5rem;">Davom etish</button>
+            </form>
+            <p style="margin-top:1rem;text-align:center;">Hisobingiz bormi? <a href="#login" style="color:var(--primary);font-weight:600;">Kirish</a></p>
+          </div>`;
+        },
+        login() { return `
+          <div class="form-box">
+            <h2 style="margin-bottom:1rem;">Tizimga kirish</h2>
+            <form id="log-form">
+              <div class="form-group"><label>Email</label><input id="log-email" type="email" required></div>
+              <div class="form-group"><label>Parol</label><input id="log-pass" type="password" required></div>
+              <div id="log-error" class="error"></div>
+              <button type="submit" class="btn btn-primary" style="width:100%;margin-top:0.5rem;">Kirish</button>
+            </form>
+            <p style="margin-top:1rem;text-align:center;">Hisob yo'qmi? <a href="#register" style="color:var(--primary);font-weight:600;">Ro'yxatdan o'tish</a></p>
+          </div>`;
+        },
+        courses() { return `
+          <h2 style="margin-bottom:1rem;">Barcha Kurslar</h2>
+          <div class="grid">${app.courses.map(c => `
+            <div class="card">
+              <div class="course-img" style="font-size:3rem;">${c.img}</div>
+              <h3>${c.title}</h3>
+              <p style="color:var(--text-muted);margin:0.5rem 0 1rem;">${c.desc}</p>
+              <button class="btn btn-primary" style="width:100%;" onclick="app.enrollCourse('${c.id}')">Kursga yozilish</button>
+            </div>`).join('')}</div>`;
+        },
+        dashboard() {
+          const enrollments = DB.get('enrollments').filter(e => e.uid === app.user?.id);
+          const stats = [
+            {label: 'Yozilgan kurslar', val: enrollments.length},
+            {label: 'O'rtacha progress', val: enrollments.length ? Math.round(enrollments.reduce((a,b)=>a+b.progress,0)/enrollments.length) + '%' : '0%'},
+            {label: 'Tamomlangan', val: enrollments.filter(e => e.progress >= 100).length}
+          ];
+          return `
+            <h2 style="margin-bottom:1.5rem;">👋 Xush kelibsiz, ${app.user.name}</h2>
+            <div class="stats">${stats.map(s => `<div class="stat-card"><div class="stat-val">${s.val}</div><div style="color:var(--text-muted)">${s.label}</div></div>`).join('')}</div>
+            <h3 style="margin-bottom:1rem;">Mening Kurslarim</h3>
+            ${enrollments.length ? `<div class="grid">${enrollments.map(e => {
+              const c = app.courses.find(x => x.id === e.cid);
+              return `<div class="card">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <h4>${c.title}</h4>
+                  <span style="color:var(--primary);font-weight:600;">${e.progress}%</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width:${e.progress}%"></div></div>
+                <div style="margin-top:1rem;display:flex;gap:0.5rem;">
+                  <button class="btn btn-outline" onclick="app.simProgress('${c.id}', ${e.progress})">Darsni ko'rish</button>
+                  ${e.progress >= 100 ? '<span style="color:var(--success);align-self:center;">✅ Tamomlandi</span>' : ''}
+                </div>
+              </div>`;
+            }).join('')}</div>` : '<p style="color:var(--text-muted);padding:2rem 0;">Siz hali hech qaysi kursga yozilmagansiz.</p>'}
+          `;
+        }
+      },
+
+      simProgress(cid, current) {
+        const next = Math.min(current + Math.floor(Math.random()*20) + 10, 100);
+        DB.updateProgress(this.user.id, cid, next);
+        this.route('dashboard');
+        this.showToast(`Progress yangilandi: ${next}%`, 'success');
+      }
+    };
+
+    // Ishga tushirish
+    document.addEventListener('DOMContentLoaded', () => app.init());
+  </script>
+</body>
+</html>
+
+           
